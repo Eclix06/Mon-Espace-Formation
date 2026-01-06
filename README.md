@@ -1,88 +1,117 @@
-# Mon Espace Formation — Front-end
+# Mon Espace Formation — Front-end (React)
 
-Ce dépôt contient la partie front-end de l’application Mon Espace Formation. Il couvre l’interface utilisateur, les interactions et la présentation. Une partie back-end existe dans un dépôt séparé.
+## Description
 
-> Remarque: Lien du dépôt back-end ci-dessous.
-https://github.com/Eclix06/Mon-Espace-Formation-Spring
+**Mon Espace Formation** est une application web moderne de type SPA (Single Page Application) développée avec **React** et **Vite**. Elle propose une plateforme complète de gestion de formations en ligne, intégrant :
 
-## Pile technique
+- Une interface utilisateur intuitive pour la consultation et l'inscription aux formations
+- Une interface d'administration complète pour la gestion des formations, sessions, formateurs et attestations
+- Une salle 3D interactive immersive utilisant Three.js pour une expérience utilisateur innovante
 
-Ce projet est majoritairement front en JavaScript et CSS, avec une base HTML légère.
+## Pile Technique
 
-- JavaScript ≈ 80.1%
-- CSS ≈ 19.8%
-- HTML ≈ 0.1%
+### Framework & Build Tools
+- **React** 18+ (v19.2.0)
+- **Vite** 7.3.0 (Build tool et serveur de développement)
 
-```text
-JavaScript: 332 445 octets
-CSS       : 82 201 octets
-HTML      : 373 octets
-Total     : 415 019 octets
-```
+### Bibliothèques 3D
+- **Three.js** 0.182.0 (Moteur 3D)
+- **@react-three/fiber** 9.5.0 (Wrapper React pour Three.js)
+- **@react-three/drei** 10.7.7 (Utilitaires et helpers pour React Three Fiber)
+- **@react-three/rapier** 2.2.0 (Physique 3D)
 
-## Aperçu
+### UI & Styling
+- **Bootstrap** 5.3.8 & **react-bootstrap** 2.10.10 (Framework CSS et composants)
+- **CSS3** (Modules et variables CSS personnalisées)
+- **framer-motion** 12.23.25 (Animations)
 
-- Interface utilisateur (UI) et interactions côté client
-- Styles responsifs en CSS
-- Pages/sections HTML servant de structure au montage de l’UI
+### Icônes
+- **Lucide React** 0.562.0
+- **react-icons** 5.5.0 (FontAwesome, etc.)
 
-## Dépôt back-end
+### Routing & Navigation
+- **react-router-dom** 7.10.1 (Gestion des routes)
 
-- Dépôt back-end: à compléter
-- Base URL API: à configurer si nécessaire (par exemple via une variable d’environnement ou un fichier de configuration)
+### Utilitaires
+- **jspdf** 4.0.0 (Génération de PDF pour les attestations)
+- **@emailjs/browser** 4.4.1 (Envoi d'emails)
 
-Si votre front consomme une API, pensez à définir l’URL de l’API en un seul endroit (ex: `config.js`, `env`, etc.) afin de faciliter les déploiements multi-environnements (dev/staging/prod).
+### Client HTTP
+- **fetch API** (natif) pour la communication avec l'API REST backend
 
-## Prise en main
+## Prérequis
 
-### Prérequis
-- Un navigateur moderne (Chrome, Firefox, Edge, Safari)
-- Optionnel: un serveur HTTP statique (ex: `Live Server` pour VS Code, `serve`, `http-server`, etc.)
+- **Node.js** (version 16 ou supérieure recommandée)
+- **npm** ou **yarn** (gestionnaire de paquets)
 
-### Installation
+## Installation
+
+1. **Cloner le dépôt** (si ce n'est pas déjà fait)
+   ```bash
+   git clone <url-du-repo>
+   cd Mon-Espace-Formation-main/React
+   ```
+
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   ```
+
+## Lancement
+
+### Mode Développement
+
 ```bash
-# Cloner le dépôt
-git clone https://github.com/Eclix06/Mon-Espace-Formation.git
-cd Mon-Espace-Formation
+npm run dev
 ```
 
-### Lancement
-- Méthode simple: ouvrir le fichier `index.html` dans votre navigateur.
-- Méthode recommandée: servir le projet via un serveur HTTP statique pour un comportement proche de la production.
-  ```bash
-  # Exemple avec npx (Node.js installé)
-  npx serve .
-  # ou
-  npx http-server .
-  ```
+L'application sera accessible à l'adresse : **http://localhost:5173**
 
-## Développement
+### Build de Production
 
-- Logique d’interaction en JavaScript
-- Styles en CSS (modules, composants, media queries)
-- Structure HTML minimale pour l’assemblage de l’interface
+```bash
+npm run build
+```
 
-Conseils:
-- Utiliser un serveur local pour éviter les restrictions liées au chargement de fichiers.
-- Activer les DevTools du navigateur pour le debug (Console, Network, Performance, Inspecteur DOM/CSS).
+Les fichiers optimisés seront générés dans le dossier `dist/`.
 
-## Contribuer
+### Prévisualisation du Build
 
-Les contributions sont les bienvenues:
-1. Forkez le dépôt
-2. Créez une branche (`git checkout -b feature/ma-fonctionnalite`)
-3. Commitez (`git commit -m "Ajoute ma fonctionnalité"`)
-4. Poussez (`git push origin feature/ma-fonctionnalite`)
-5. Ouvrez une Pull Request
+```bash
+npm run preview
+```
 
-Merci de maintenir un code clair, commenté et cohérent.
+## Configuration de l'API
 
-## Licence
+L'application front-end communique avec une **API REST Spring Boot** hébergée sur le backend.
 
-S’il n’y a pas de fichier de licence présent dans le dépôt, le projet n’est pas explicitement sous licence open-source. Ajoutez un fichier `LICENSE` si nécessaire.
+### Endpoints Principaux
 
-## Contact
+- **Formations** : `GET /api/trainings`
+- **Sessions** : `GET /api/sessions`
+- **Inscriptions** : `POST /api/inscriptions`
+- **Authentification** : `POST /api/auth/login`
+- **Notifications** : `GET /api/notifications`
+- **Attestations** : Génération via `jsPDF` côté client
 
-- Propriétaires du dépôt: [Eclix06](https://github.com/Eclix06), [MEYCOZ](https://github.com/MEYCOZ), [NolanMMI123](https://github.com/NolanMMI123), [PurPlePoke](https://github.com/PurPlePoke).
-- Issues et PRs: via GitHub sur ce dépôt
-- Back-end: https://github.com/Eclix06/Mon-Espace-Formation-Spring
+### Configuration Personnalisée
+
+Si votre backend est hébergé sur un autre port ou domaine, modifiez les URLs dans les composants qui effectuent des appels API (ex: `AdminLayout.jsx`, `Dashboard.jsx`, etc.).
+
+## Structure du Projet
+
+```
+React/
+├── public/                # Modèles 3D (.glb) et logos
+├── src/
+│   ├── components/        # Layouts, Header, Footer, Toasts
+│   ├── pages/             # Vues principales
+│   │   ├── Home.jsx       # Accueil public
+│   │   ├── Catalogue.jsx  # Liste des formations
+│   │   ├── Salle3D.jsx    # Expérience immersive
+│   │   └── Admin/         # Dashboard, Inscriptions, Sessions, Settings
+│   ├── services/          # Configuration Axios (api.js)
+│   ├── utils/             # Thèmes et données statiques
+│   ├── App.jsx            # Routage principal
+│   └── main.jsx           # Point d'entrée
+└── vite.config.js         # Configuration du Proxy API
