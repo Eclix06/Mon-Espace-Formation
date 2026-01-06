@@ -14,6 +14,9 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard'; 
 import Salle3D from "./pages/Salle3D";
+import MentionsLegales from './pages/MentionsLegales';
+import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
+import CGV from './pages/CGV';
 
 // 👇 1. IMPORT DE LA PAGE DE PAIEMENT
 import InscriptionPage from './pages/InscriptionPage'; 
@@ -85,6 +88,9 @@ function App() {
           
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/MentionsLegales" element={<MentionsLegales />} />
+          <Route path="/PolitiqueConfidentialite" element={<PolitiqueConfidentialite />} />
+          <Route path="/CGV" element={<CGV />} />
         </Routes>
       </main>
 

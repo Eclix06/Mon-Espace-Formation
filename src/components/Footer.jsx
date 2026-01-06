@@ -68,9 +68,15 @@ const Footer = () => {
                             © 2025 Mon Espace Formation - TXLFORMA. Tous droits réservés.
                         </Col>
                         <Col md={6} className="text-md-end mt-2 mt-md-0">
-                            <span className="mx-2">Mentions légales</span>
-                            <span className="mx-2">Politique de confidentialité</span>
-                            <span className="mx-2">CGV</span>
+                            <Link to="/MentionsLegales" className="text-white text-decoration-none" onClick={() => window.scrollTo(0, 0)}>
+                                Mentions légales
+                            </Link>
+                            <Link to="/PolitiqueConfidentialite" className="text-white text-decoration-none mx-2" onClick={() => window.scrollTo(0, 0)}>
+                                Politique de confidentialité
+                            </Link>
+                            <Link to="/CGV" className="text-white text-decoration-none" onClick={() => window.scrollTo(0, 0)}>
+                                CGV
+                            </Link>
                         </Col>
                     </Row>
                 </div>
