@@ -19,12 +19,24 @@ import Salle3D from "./pages/Salle3D";
 import InscriptionPage from './pages/InscriptionPage'; 
 // 👇 AJOUT : IMPORT DE LA PAGE DE SUCCÈS
 import RegistrationSuccess from './pages/RegistrationSuccess';
+// 👇 IMPORTS ADMIN
+import AdminDashboard from './pages/AdminDashboard';
+import ManageInscriptions from './pages/ManageInscriptions';
+import ManageSessions from './pages/ManageSessions';
+import ManageTrainers from './pages/ManageTrainers';
+import ManageTrainings from './pages/ManageTrainings';
+import AdminAttestations from './pages/AdminAttestations';
+import AdminSettings from './pages/AdminSettings';
+import AdminRoute from './components/AdminRoute';
 
 function App() {
   const location = useLocation();
   
-  // On cache le header/footer sur les pages de connexion/inscription compte
-  const isAuthPage = location.pathname === '/connexion' || location.pathname === '/inscription-compte';
+  // CORRECTION ICI : Remplacement de '/inscription-compte' par '/inscription'
+  const isAuthPage = location.pathname === '/connexion' || location.pathname === '/inscription';
+  
+  // On cache le header/footer sur toutes les pages d'administration
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   // Scroll en haut de page à chaque changement de route
   useEffect(() => {
@@ -34,7 +46,7 @@ function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
 
-      {!isAuthPage && <Header />}
+      {!isAuthPage && !isAdminPage && <Header />}
 
       <main className="flex-grow-1">
         <Routes>
@@ -62,12 +74,21 @@ function App() {
           {/* Espace membre */}
           <Route path="/dashboard" element={<Dashboard />} />
           
+          {/* Administration - Routes protégées */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/inscriptions" element={<AdminRoute><ManageInscriptions /></AdminRoute>} />
+          <Route path="/admin/sessions" element={<AdminRoute><ManageSessions /></AdminRoute>} />
+          <Route path="/admin/formateurs" element={<AdminRoute><ManageTrainers /></AdminRoute>} />
+          <Route path="/admin/formations" element={<AdminRoute><ManageTrainings /></AdminRoute>} />
+          <Route path="/admin/attestations" element={<AdminRoute><AdminAttestations /></AdminRoute>} />
+          <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+          
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
 
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !isAdminPage && <Footer />}
     </div>
   );
 }
