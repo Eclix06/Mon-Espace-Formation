@@ -355,7 +355,6 @@ const Dashboard = () => {
             <div className="col-lg-8 animate-enter delay-3">
 
                 {hasTraining ? (
-                    // ICI : On appelle la TrainingCard pour chaque formation
                     trainingsList.map((training, index) => (
                         <TrainingCard 
                             key={training.id || index} 
