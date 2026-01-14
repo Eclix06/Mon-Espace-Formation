@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import Toast from '../components/Toast';
-import { FaEye, FaCalendarAlt, FaPlus } from 'react-icons/fa';
+import { FaEye, FaCalendarAlt, FaPlus, FaEdit } from 'react-icons/fa';
 import { X } from 'lucide-react';
 import './ManageTrainers.css';
 
@@ -20,9 +20,11 @@ const ManageTrainers = () => {
     prenom: '',
     email: '',
     password: '',
-    poste: ''
+    poste: '',
+    typeContrat: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editingTrainerId, setEditingTrainerId] = useState(null);
 
   useEffect(() => {
     fetchTrainers();
@@ -45,26 +47,72 @@ const ManageTrainers = () => {
   };
 
   // Gérer l'ouverture du modal
-  const handleOpenModal = () => {
-    setFormData({
-      nom: '',
-      prenom: '',
-      email: '',
-      password: '',
-      poste: ''
-    });
-    setShowModal(true);
+  const handleOpenModal = (trainer = null) => {
+    console.log('handleOpenModal appelé avec:', trainer);
+    try {
+      if (trainer) {
+        // Mode édition - récupérer les données complètes du formateur
+        console.log('Mode édition pour le formateur:', trainer.id);
+        fetch(`/api/users/trainer/${trainer.id}`)
+          .then(res => {
+            if (!res.ok) throw new Error('Erreur lors du chargement');
+            return res.json();
+          })
+          .then(fullTrainer => {
+            console.log('Données complètes du formateur:', fullTrainer);
+            // Extraire nom et prénom du fullname
+            const nameParts = (trainer.fullname || '').split(' ');
+            const prenom = nameParts.length > 0 ? nameParts[0] : '';
+            const nom = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+            
+            setFormData({
+              nom: fullTrainer.nom || nom || '',
+              prenom: fullTrainer.prenom || prenom || '',
+              email: fullTrainer.email || '',
+              password: '', // Ne pas pré-remplir le mot de passe
+              poste: fullTrainer.poste || trainer.speciality || '',
+              typeContrat: fullTrainer.typeContrat || ''
+            });
+            setEditingTrainerId(trainer.id);
+            setShowModal(true);
+            console.log('Modal ouvert en mode édition');
+          })
+          .catch(err => {
+            console.error('Erreur lors du chargement du formateur:', err);
+            setToast({ message: 'Erreur lors du chargement des données: ' + err.message, type: 'error' });
+          });
+      } else {
+        // Mode création
+        console.log('Mode création - ouverture du modal');
+        setFormData({
+          nom: '',
+          prenom: '',
+          email: '',
+          password: '',
+          poste: '',
+          typeContrat: ''
+        });
+        setEditingTrainerId(null);
+        setShowModal(true);
+        console.log('Modal ouvert en mode création, showModal:', true);
+      }
+    } catch (error) {
+      console.error('Erreur dans handleOpenModal:', error);
+      setToast({ message: 'Erreur lors de l\'ouverture du formulaire: ' + error.message, type: 'error' });
+    }
   };
 
   // Gérer la fermeture du modal
   const handleCloseModal = () => {
     setShowModal(false);
+    setEditingTrainerId(null);
     setFormData({
       nom: '',
       prenom: '',
       email: '',
       password: '',
-      poste: ''
+      poste: '',
+      typeContrat: ''
     });
   };
 
@@ -96,30 +144,95 @@ const ManageTrainers = () => {
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/users/trainer', {
-        method: 'POST',
+      const url = editingTrainerId 
+        ? `/api/users/trainer/${editingTrainerId}`
+        : '/api/users/trainer';
+      
+      const method = editingTrainerId ? 'PUT' : 'POST';
+      
+      const bodyData = {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email,
+        poste: formData.poste
+      };
+      
+      // Ajouter typeContrat seulement s'il est renseigné
+      if (formData.typeContrat && formData.typeContrat.trim() !== '') {
+        bodyData.typeContrat = formData.typeContrat;
+      }
+      
+      // Ajouter le mot de passe seulement s'il est fourni (pour la création ou la modification)
+      if (formData.password && formData.password.trim() !== '') {
+        bodyData.password = formData.password;
+      } else if (!editingTrainerId) {
+        // Mot de passe par défaut seulement pour la création
+        bodyData.password = 'trainer123';
+      }
+
+      console.log('Envoi de la requête:', { url, method, bodyData });
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          password: formData.password || 'trainer123' // Mot de passe par défaut si non fourni
-        })
+        body: JSON.stringify(bodyData)
       });
 
-      if (!response.ok) {
-        if (response.status === 400) {
-          throw new Error('Cet email est déjà utilisé');
-        }
-        throw new Error('Erreur lors de la création du formateur');
+      // Vérifier le Content-Type de la réponse
+      const contentType = response.headers.get('content-type');
+      let responseData = null;
+      
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        const responseText = await response.text();
+        console.log('Réponse du serveur (texte):', response.status, responseText);
       }
 
-      setToast({ message: 'Formateur créé avec succès !', type: 'success' });
+      if (!response.ok) {
+        let errorMessage = editingTrainerId 
+          ? 'Erreur lors de la modification du formateur' 
+          : 'Erreur lors de la création du formateur';
+        
+        if (response.status === 400) {
+          errorMessage = 'Cet email est déjà utilisé ou données invalides. Vérifiez que tous les champs sont correctement remplis.';
+        } else if (response.status === 404) {
+          errorMessage = 'Formateur non trouvé';
+        } else if (response.status === 500) {
+          errorMessage = 'Erreur serveur. Vérifiez les logs du backend et que le serveur est bien démarré.';
+        }
+        
+        // Essayer d'extraire un message d'erreur plus détaillé si disponible
+        if (responseData && responseData.message) {
+          errorMessage = responseData.message;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Vérifier que la réponse contient bien des données
+      if (responseData) {
+        console.log('Formateur créé/modifié avec succès:', responseData);
+      }
+
+      setToast({ 
+        message: editingTrainerId 
+          ? 'Formateur modifié avec succès !' 
+          : 'Formateur créé avec succès !', 
+        type: 'success' 
+      });
       handleCloseModal();
       await fetchTrainers(); // Rafraîchir la liste
     } catch (err) {
       console.error('Erreur:', err);
-      setToast({ message: err.message || 'Erreur lors de la création du formateur', type: 'error' });
+      setToast({ 
+        message: err.message || (editingTrainerId 
+          ? 'Erreur lors de la modification du formateur' 
+          : 'Erreur lors de la création du formateur'), 
+        type: 'error' 
+      });
     } finally {
       setSubmitting(false);
     }
@@ -164,7 +277,16 @@ const ManageTrainers = () => {
             <h2 className="admin-page-title">Gestion des formateurs</h2>
             <p className="admin-page-subtitle">Suivi des formateurs et de leurs sessions</p>
           </div>
-          <button className="admin-btn-primary" onClick={handleOpenModal}>
+          <button 
+            className="admin-btn-primary" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Bouton cliqué - ouverture du modal');
+              handleOpenModal();
+            }}
+            type="button"
+          >
             <FaPlus />
             Ajouter un formateur
           </button>
@@ -200,10 +322,45 @@ const ManageTrainers = () => {
                 <div className="trainer-contact">
                   <div className="trainer-email">📧 {trainer.email || 'N/A'}</div>
                 </div>
+                <div className="trainer-contract-info">
+                  {trainer.typeContrat ? (
+                    <div className="trainer-contract-badge-card">
+                      <span className="trainer-contract-label">Type de contrat:</span>
+                      <span 
+                        className="trainer-contract-badge-value"
+                        style={{
+                          backgroundColor: 
+                            trainer.typeContrat === 'Freelance' ? '#4285F4' :
+                            trainer.typeContrat === 'CDD' ? '#34A853' :
+                            trainer.typeContrat === 'Vacataire' ? '#FFC107' : '#6c757d',
+                          color: trainer.typeContrat === 'Vacataire' ? '#212529' : 'white'
+                        }}
+                      >
+                        {trainer.typeContrat}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="trainer-contract-badge-card">
+                      <span className="trainer-contract-label">Type de contrat:</span>
+                      <span className="trainer-contract-badge-value" style={{ backgroundColor: '#6c757d', color: 'white' }}>
+                        Non défini
+                      </span>
+                    </div>
+                  )}
+                  {trainer.tarif && (
+                    <div className="trainer-tarif-card">
+                      <span className="trainer-tarif-label">Tarif:</span>
+                      <span className="trainer-tarif-value">{trainer.tarif}€/h</span>
+                    </div>
+                  )}
+                </div>
                 <div className="trainer-actions">
-                  <button className="trainer-action-btn">
-                    <FaEye />
-                    Profil
+                  <button 
+                    className="trainer-action-btn"
+                    onClick={() => handleOpenModal(trainer)}
+                  >
+                    <FaEdit />
+                    Modifier
                   </button>
                   <button className="trainer-action-btn">
                     <FaCalendarAlt />
@@ -221,7 +378,9 @@ const ManageTrainers = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Ajouter un formateur</h3>
+              <h3 className="modal-title">
+                {editingTrainerId ? 'Modifier le formateur' : 'Ajouter un formateur'}
+              </h3>
               <button className="modal-close" onClick={handleCloseModal}>
                 <X size={20} />
               </button>
@@ -281,16 +440,35 @@ const ManageTrainers = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Mot de passe (optionnel)</label>
+                <label className="form-label">Type de contrat</label>
+                <select
+                  name="typeContrat"
+                  value={formData.typeContrat}
+                  onChange={handleInputChange}
+                  className="form-input"
+                >
+                  <option value="">Sélectionner un type</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="CDD">CDD</option>
+                  <option value="Vacataire">Vacataire</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  Mot de passe {editingTrainerId ? '(laisser vide pour ne pas modifier)' : '(optionnel)'}
+                </label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   className="form-input"
-                  placeholder="Laissez vide pour utiliser 'trainer123' par défaut"
+                  placeholder={editingTrainerId ? "Laisser vide pour ne pas modifier" : "Laissez vide pour utiliser 'trainer123' par défaut"}
                 />
-                <p className="form-hint">Si non renseigné, le mot de passe par défaut sera "trainer123"</p>
+                {!editingTrainerId && (
+                  <p className="form-hint">Si non renseigné, le mot de passe par défaut sera "trainer123"</p>
+                )}
               </div>
 
               <div className="modal-actions">
@@ -298,7 +476,9 @@ const ManageTrainers = () => {
                   Annuler
                 </button>
                 <button type="submit" className="btn-submit" disabled={submitting}>
-                  {submitting ? 'Création...' : 'Ajouter le formateur'}
+                  {submitting 
+                    ? (editingTrainerId ? 'Modification...' : 'Création...') 
+                    : (editingTrainerId ? 'Modifier le formateur' : 'Ajouter le formateur')}
                 </button>
               </div>
             </form>

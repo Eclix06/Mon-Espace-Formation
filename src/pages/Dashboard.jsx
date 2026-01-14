@@ -71,17 +71,23 @@ const TrainingCard = ({ training, progressWidth }) => {
                         </div>
                     </div>
 
+                    {training.trainerName && (
                     <div className="trainer-box mt-3">
-                        <div className="trainer-avatar">EX</div>
+                            <div className="trainer-avatar">
+                                {training.trainerName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                            </div>
                         <div className="flex-grow-1">
                             <div className="trainer-label">Votre formateur</div>
-                            <h5 className="trainer-name">Expert TXLForma</h5>
+                                <h5 className="trainer-name">{training.trainerName}</h5>
                             <div className="trainer-role">Formateur Certifié</div>
+                                {training.trainerEmail && (
                             <div className="trainer-email">
-                                <Mail size={14}/> contact@txlforma.fr
+                                        <Mail size={14}/> {training.trainerEmail}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <div className="progress-section mt-4">
                         <div className="progress-header">
@@ -355,6 +361,7 @@ const Dashboard = () => {
             <div className="col-lg-8 animate-enter delay-3">
 
                 {hasTraining ? (
+                    // ICI : On appelle la TrainingCard pour chaque formation
                     trainingsList.map((training, index) => (
                         <TrainingCard 
                             key={training.id || index} 

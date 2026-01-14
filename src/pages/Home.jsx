@@ -238,8 +238,8 @@ const Home = () => {
                         Contactez-nous dès maintenant pour échanger sur vos besoins en formation et trouver la solution adaptée à votre projet professionnel.
                     </p>
                     <div className="d-flex justify-content-center gap-3 mb-5">
-                        <Button as={Link} to="/contact" size="lg" className="border-0 px-4 rounded-1" style={{ backgroundColor: theme.colors.primary }}>Demander un devis →</Button>
-                        <Button as={Link} to="/catalogue" size="lg" variant="light" className="px-4 rounded-1">Voir notre catalogue</Button>
+                        <Button size="lg" className="border-0 px-4 rounded-1" style={{ backgroundColor: theme.colors.primary }}>Demander un devis →</Button>
+                        <Button size="lg" variant="light" className="px-4 rounded-1">Télécharger notre catalogue</Button>
                     </div>
                     <div className="fw-bold text-dark fs-5 d-flex flex-wrap justify-content-center gap-4">
                         <span><FaPhoneAlt className="me-2" /> 01 23 45 67 89</span>
