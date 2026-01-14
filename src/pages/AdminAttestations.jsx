@@ -319,7 +319,9 @@ const AdminAttestations = () => {
               
               {/* Total généré */}
               <div className="stats-total">
-                <div className="stats-total-icon">📜</div>
+                  <div className="admin-empty-icon">
+                    <Award size={48} strokeWidth={1.5} />
+                  </div>
                 <div className="stats-total-value">{stats.total}</div>
                 <div className="stats-total-label">Attestations générées</div>
               </div>
