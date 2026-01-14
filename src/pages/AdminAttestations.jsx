@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import Toast from '../components/Toast';
-import { Search, Download, FileText, TrendingUp } from 'lucide-react';
+import { Search, Download, FileText, TrendingUp, Award } from 'lucide-react';
 import jsPDF from 'jspdf';
 import './AdminAttestations.css';
 
@@ -263,7 +263,9 @@ const AdminAttestations = () => {
 
               {filteredAttestations.length === 0 ? (
                 <div className="admin-empty-state">
-                  <div className="admin-empty-icon">📜</div>
+                  <div className="admin-empty-icon">
+                    <Award size={48} strokeWidth={1.5} />
+                  </div>
                   <p className="admin-empty-title">Aucune attestation disponible</p>
                   <p className="admin-empty-hint">
                     {searchTerm ? 'Aucun résultat pour votre recherche' : 'Aucune formation terminée pour le moment'}
